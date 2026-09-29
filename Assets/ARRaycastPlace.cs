@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using TMPro;
 
 public class ARRaycastPlace : MonoBehaviour
 {
@@ -27,8 +28,23 @@ public class ARRaycastPlace : MonoBehaviour
         if (raycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
         {
             Pose hitPose = hits[0].pose;
-            Instantiate(objectToPlace, hitPose.position, hitPose.rotation);
+            GameObject note = Instantiate(objectToPlace, hitPose.position, hitPose.rotation);
+            
+            TMP_InputField input = note.GetComponentInChildren<TMP_InputField>(true);
+            if (input != null)
+            {
+                StartCoroutine(ActivateNextFrame(input));
+            }
         }
         
+    }
+       IEnumerator ActivateNextFrame(TMP_InputField input)
+    {
+        // Wait a frame so the new object's Start/OnEnable have run
+        // and the touch that placed it has finished being processed.
+        yield return null;
+
+        input.Select();
+        input.ActivateInputField();
     }
 }
